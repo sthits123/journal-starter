@@ -2,6 +2,7 @@ import logging
 from datetime import UTC, datetime
 from typing import Any
 
+from api.models.entry import EntryUpdate
 from api.repositories.postgres_repository import PostgresDB
 
 logger = logging.getLogger("journal")
@@ -36,26 +37,30 @@ class EntryService:
         else:
             logger.warning("Entry %s not found", entry_id)
         return entry
-
+     
     async def update_entry(
-        self, entry_id: str, updated_data: dict[str, Any]
-    ) -> dict[str, Any] | None:
+    self, entry_id: str, updated_data: EntryUpdate
+) -> dict[str, Any] | None:
         """Updates an existing entry."""
         logger.info("Updating entry %s", entry_id)
+
         existing_entry = await self.db.get_entry(entry_id)
         if not existing_entry:
-            logger.warning("Entry %s not found. Update aborted.", entry_id)
-            return None
+         logger.warning("Entry %s not found. Update aborted.", entry_id)
+         return None
 
-        updated_data = {
+        updated_fields = updated_data.model_dump(exclude_unset=True)
+
+        merged_data = {
             **existing_entry,
-            **updated_data,
+            **updated_fields,
             "id": entry_id,
             "updated_at": datetime.now(UTC),
         }
-        await self.db.update_entry(entry_id, updated_data)
+
+        await self.db.update_entry(entry_id, merged_data)
         logger.debug("Entry %s updated", entry_id)
-        return updated_data
+        return merged_data
 
     async def delete_entry(self, entry_id: str) -> None:
         """Deletes a specific entry."""
