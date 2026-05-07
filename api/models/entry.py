@@ -1,8 +1,16 @@
 from datetime import UTC, datetime
+from typing import Annotated
 from uuid import uuid4
+from pydantic import BaseModel, Field, StringConstraints
 
-from pydantic import BaseModel, Field
-
+EntryText = Annotated[
+    str,
+    StringConstraints(
+        strip_whitespace=True,
+        min_length=1,
+        max_length=256,
+    ),
+]
 
 class AnalysisResponse(BaseModel):
     """Response model for journal entry analysis."""
@@ -28,22 +36,22 @@ class EntryCreate(BaseModel):
     Hint: wrap the field type in ``Annotated[str, StringConstraints(...)]``.
     See https://docs.pydantic.dev/latest/concepts/types/#constrained-types
     """
-
-    work: str = Field(
-        max_length=256,
+    
+    work:EntryText = Field(
         description="What did you work on today?",
         json_schema_extra={"example": "Studied FastAPI and built my first API endpoints"},
     )
-    struggle: str = Field(
-        max_length=256,
+
+    struggle: EntryText = Field(
         description="What's one thing you struggled with today?",
         json_schema_extra={"example": "Understanding async/await syntax and when to use it"},
     )
-    intention: str = Field(
-        max_length=256,
+
+    intention:EntryText = Field(
         description="What will you study/work on tomorrow?",
         json_schema_extra={"example": "Practice PostgreSQL queries and database design"},
     )
+   
 
 
 # TODO (Task 3): Define an ``EntryUpdate`` model for PATCH /entries/{entry_id}.
@@ -56,6 +64,19 @@ class EntryCreate(BaseModel):
 # Once defined, import ``EntryUpdate`` in ``api/routers/journal_router.py``
 # and use it as the type of the PATCH endpoint's request body.
 
+class EntryUpdate(BaseModel):
+    work: EntryText | None = Field(
+        default=None,
+        description="What did you work on today?",
+    )
+    struggle: EntryText | None = Field(
+        default=None,
+        description="What's one thing you struggled with today?",
+    )
+    intention: EntryText | None = Field(
+        default=None,
+        description="What will you study/work on tomorrow?",
+    )
 
 class Entry(BaseModel):
     id: str = Field(

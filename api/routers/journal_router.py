@@ -3,7 +3,7 @@ from collections.abc import AsyncGenerator
 from fastapi import APIRouter, Depends, HTTPException
 
 from api.config import Settings, get_settings
-from api.models.entry import AnalysisResponse, Entry, EntryCreate
+from api.models.entry import AnalysisResponse, Entry, EntryCreate, EntryUpdate
 from api.repositories.postgres_repository import PostgresDB
 from api.services.entry_service import EntryService
 from api.services.llm_service import analyze_journal_entry
@@ -73,7 +73,7 @@ async def get_entry(entry_id: str, entry_service: EntryService = Depends(get_ent
 
 @router.patch("/entries/{entry_id}")
 async def update_entry(
-    entry_id: str, entry_update: dict, entry_service: EntryService = Depends(get_entry_service)
+    entry_id: str, entry_update:EntryUpdate, entry_service: EntryService = Depends(get_entry_service)
 ):
     """Update a journal entry.
 
