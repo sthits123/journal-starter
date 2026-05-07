@@ -1,5 +1,6 @@
 import logging
 from datetime import UTC, datetime
+from pickle import DICT
 from typing import Any
 
 from api.models.entry import EntryUpdate
@@ -39,7 +40,7 @@ class EntryService:
         return entry
      
     async def update_entry(
-    self, entry_id: str, updated_data: EntryUpdate
+    self, entry_id: str, updated_data:dict[str,Any]
 ) -> dict[str, Any] | None:
         """Updates an existing entry."""
         logger.info("Updating entry %s", entry_id)
@@ -49,11 +50,10 @@ class EntryService:
          logger.warning("Entry %s not found. Update aborted.", entry_id)
          return None
 
-        updated_fields = updated_data.model_dump(exclude_unset=True)
-
+        
         merged_data = {
             **existing_entry,
-            **updated_fields,
+            **updated_data,
             "id": entry_id,
             "updated_at": datetime.now(UTC),
         }
