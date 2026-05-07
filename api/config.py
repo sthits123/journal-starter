@@ -41,6 +41,24 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    @classmethod
+    def settings_customise_sources(
+        cls,
+        settings_cls,
+        init_settings,
+        env_settings,
+        dotenv_settings,
+        file_secret_settings,
+    ):
+        # Prefer `.env` over any pre-set environment variables. This avoids
+        # surprising overrides when a shell/devcontainer already has DATABASE_URL set.
+        return (
+            init_settings,
+            dotenv_settings,
+            env_settings,
+            file_secret_settings,
+        )
+
 
 @lru_cache
 def get_settings() -> Settings:
