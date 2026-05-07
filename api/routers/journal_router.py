@@ -66,8 +66,10 @@ async def get_entry(entry_id: str, entry_service: EntryService = Depends(get_ent
 
     Hint: Check the update_entry endpoint for similar patterns
     """
-    raise HTTPException(status_code=501, detail="Not implemented - complete this endpoint!")
-
+    entry=await entry_service.get_entry(entry_id)
+    if entry is None:
+      raise HTTPException(status_code=404, detail="Not implemented - complete this endpoint!")
+    return entry
 
 @router.patch("/entries/{entry_id}")
 async def update_entry(
